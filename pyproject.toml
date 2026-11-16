@@ -1,0 +1,21 @@
+[project]
+name = "shopping-purchase-prediction"
+version = "0.1.0"
+description = "ML Zoomcamp midterm project for online shopping purchase prediction"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "joblib>=1.5,<2",
+    "pandas>=2.2,<3",
+    "pydantic>=2.11,<3",
+    "scikit-learn>=1.6,<1.9",
+    "uvicorn>=0.34,<1",
+]
+
+[dependency-groups]
+notebook = [
+    "ipykernel>=6.29,<8",
+    "jupyterlab>=4.4,<5",
+    "matplotlib>=3.10,<4",
+    "nbconvert>=7.16,<8",
+]

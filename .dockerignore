@@ -1,0 +1,11 @@
+**
+!pyproject.toml
+!uv.lock
+!train.py
+!predict.py
+!data/
+data/*
+!data/online_shoppers_intention.csv
+!examples/
+examples/*
+!examples/session.json

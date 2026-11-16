@@ -1,0 +1,16 @@
+{
+  "Administrative": 2,
+  "Administrative_Duration": 34.5,
+  "Informational": 1,
+  "Informational_Duration": 35.0,
+  "ProductRelated": 42,
+  "ProductRelated_Duration": 1500.0,
+  "SpecialDay": 0.0,
+  "Month": "Nov",
+  "OperatingSystems": 2,
+  "Browser": 2,
+  "Region": 1,
+  "TrafficType": 2,
+  "VisitorType": "Returning_Visitor",
+  "Weekend": true
+}
