@@ -50,14 +50,14 @@ uv run --locked python predict.py
 
 ## Run in Docker
 
-The image build uses the same uv lockfile, trains the model from the included CSV, and copies the fitted pipeline into the serving image.
+Start Docker Desktop or Docker Engine and open a terminal at the repository root, where the `Dockerfile` is located. The build installs the locked dependencies and trains the model from the included CSV. Allow a few minutes for the first build to download its dependencies and finish training.
 
 ```bash
 docker build -t shopping-purchase-prediction .
 docker run --rm -p 127.0.0.1:9696:9696 shopping-purchase-prediction
 ```
 
-Open [interactive API docs](http://127.0.0.1:9696/docs), or send requests from a separate terminal in the project folder.
+Keep the container running and wait for Uvicorn to report that it has started. Open the [interactive API docs](http://127.0.0.1:9696/docs), or run the commands below in a second terminal at the repository root.
 
 ```bash
 curl --fail-with-body http://127.0.0.1:9696/health
@@ -66,12 +66,23 @@ curl --fail-with-body http://127.0.0.1:9696/predict \
   --data-binary @examples/session.json
 ```
 
+The health check should return `status: ok`. The example prediction should return a `purchase_probability` between 0 and 1 and the model name. Press **Ctrl+C** in the first terminal when finished. If port 9696 is already in use, change the mapping to `-p 127.0.0.1:9697:9696` and use port 9697 in the browser and requests.
+
 The example is synthetic and is also prefilled in the interactive docs. The full request schema includes the seven page and calendar numbers, the four integer category identifiers, month, visitor type, and the weekend flag. Unknown positive category codes are accepted by the encoder and mapped to all-zero indicator columns for that field. The API returns HTTP 422 for malformed input.
 
 [Verified Docker run](examples/docker-demo.png) showing a health check, a prediction, and HTTP 422 for an invalid request.
 
-## Optional cloud deployment on Render
+## Cloud deployment on Render
 
-The [Render Blueprint](render.yaml) defines a Docker web service on the Free plan with `/health` as the health check. Publish the project to GitHub, then in Render choose **New → Blueprint**, connect that repo, and apply the Blueprint. Use `render.yaml` as the Blueprint path if the project is at the repo root. If it is a subfolder of a coursework repo, the fastest setup is **New → Web Service**, select **Docker** and **Free**, set **Root Directory** to the project subfolder and **Health Check Path** to `/health`.
+The FastAPI service is live on Render's Free plan. Open the [interactive API docs](https://shopping-purchase-prediction.onrender.com/docs), expand `POST /predict`, choose **Try it out**, and execute the prefilled example. The first request after an idle period can take a minute to start.
 
-Once Render shows the service as live, open its `/docs` page and run the example. To capture proof for the submission, save the working service URL or a screenshot showing the successful request and response. Free instances can take a minute to start after idling. [Render Docker guide](https://render.com/docs/docker) · [Render free instance details](https://render.com/docs/free)
+The deployed service returned HTTP 200 for the health check and predicted a purchase probability of 0.2762 for the synthetic example. [Verified Render run](examples/render-demo.png)
+
+### Recreate the service
+
+The [Render Blueprint](render.yaml) defines a Free Docker web service that listens on port 10000 and uses `/health` for readiness checks.
+
+1. Push the project to a GitHub repository you control, with `Dockerfile` and `render.yaml` at the repository root. For a private repository, connect GitHub in Render and select that repository in the Render GitHub app's **Only select repositories** setting. If it is missing from the Render repository list, check the app's repository access. [GitHub connection guide](https://render.com/docs/git-provider#fixing-github-app-permissions)
+2. In the Render Dashboard, choose **New → Blueprint** and click **Connect** next to your repository. Enter a Blueprint name, select the branch you pushed (for example, `main`), and leave **Blueprint Path** at its default, `render.yaml`. [Render Blueprint setup](https://render.com/docs/infrastructure-as-code#setup)
+3. Confirm the preview lists the `shopping-purchase-prediction` web service and click **Deploy Blueprint**. Open the service's **Deploys** page and wait for the status to become **Live**. The Dockerfile installs dependencies and trains the model during the build.
+4. Copy the service URL Render assigned and open `<service-url>/health`. Confirm the response has `status: ok`, then open `<service-url>/docs` and execute the prefilled `POST /predict` example. For the submission, save the working URL or an image of the successful response.
